@@ -1,0 +1,38 @@
+---
+title: "Running simulations"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Running simulations}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+This vignette describes the `mp_power()` workflow and how to summarize
+results with `summary()`.
+
+```{r}
+library(mixpower)
+```
+
+```{r}
+d <- mp_design(clusters = list(subject = 20), trials_per_cell = 4)
+a <- mp_assumptions(
+  fixed_effects = list(`(Intercept)` = 0, condition = 0.4),
+  residual_sd = 1,
+  icc = list(subject = 0.1)
+)
+
+scn <- mp_scenario_lme4(
+  y ~ condition + (1 | subject),
+  design = d,
+  assumptions = a,
+  test_method = "wald"
+)
+
+res <- mp_power(scn, nsim = 10, seed = 42)
+summary(res)
+```

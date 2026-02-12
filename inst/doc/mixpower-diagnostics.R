@@ -1,0 +1,30 @@
+## ----setup, include=FALSE-----------------------------------------------------
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+
+## -----------------------------------------------------------------------------
+library(mixpower)
+
+## -----------------------------------------------------------------------------
+d <- mp_design(clusters = list(subject = 20), trials_per_cell = 4)
+a <- mp_assumptions(
+  fixed_effects = list(`(Intercept)` = 0, condition = 0.3),
+  residual_sd = 1,
+  icc = list(subject = 0.1)
+)
+
+scn <- mp_scenario_lme4(
+  y ~ condition + (1 | subject),
+  design = d,
+  assumptions = a,
+  test_method = "wald"
+)
+
+sens <- mp_sensitivity(
+  scn,
+  vary = list(`fixed_effects.condition` = c(0.2, 0.4, 0.6)),
+  nsim = 10,
+  seed = 1
+)
+
+sens$results[, c("estimate", "mcse", "failure_rate", "singular_rate")]
+
