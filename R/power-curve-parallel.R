@@ -81,17 +81,8 @@ mp_power_curve_parallel <- function(scenario,
     }
     dat <- do.call(rbind, rows)
   } else {
-    if (!requireNamespace("parallel", quietly = TRUE)) {
-      stop("Package \"parallel\" is required for parallel execution.", call. = FALSE)
-    }
-    workers <- as.integer(workers)
-    if (workers < 1L) {
-      stop("`workers` must be at least 1.", call. = FALSE)
-    }
-
-    cl <- parallel::makeCluster(workers)
+    cl <- mp_parallel_cluster(workers)
     on.exit(parallel::stopCluster(cl), add = TRUE)
-    parallel::clusterEvalQ(cl, library(mixpower, character.only = TRUE))
     parallel::clusterExport(
       cl,
       c("scenario", "param", "vals", "nsim", "alpha", "seed", "failure_policy", "conf_level"),

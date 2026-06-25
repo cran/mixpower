@@ -13,8 +13,10 @@ mp_scenario_lme4(
   outcome = "y",
   item = NULL,
   test_term = predictor,
-  test_method = c("wald", "lrt"),
-  null_formula = NULL
+  test_method = c("wald", "lrt", "satterthwaite", "kenward-roger", "pb"),
+  null_formula = NULL,
+  pb_nsim = 100L,
+  contrast = NULL
 )
 }
 \arguments{
@@ -32,11 +34,22 @@ mp_scenario_lme4(
 
 \item{item}{Optional item ID column name.}
 
-\item{test_term}{Optional explicit term to test. Defaults to \code{predictor}.}
+\item{test_term}{Term to test. A single fixed effect (default \code{predictor}),
+or a character vector of terms for an omnibus / multi-degree-of-freedom
+test (joint Wald for \code{"wald"}; for \code{"lrt"}/\code{"pb"} the \code{null_formula}
+defines the joint test).}
 
-\item{test_method}{Inference method: \code{"wald"} (default) or \code{"lrt"}.}
+\item{test_method}{Inference method: \code{"wald"} (default), \code{"satterthwaite"},
+\code{"kenward-roger"}, \code{"lrt"}, or \code{"pb"}. See \code{\link[=mp_backend_lme4]{mp_backend_lme4()}}.}
 
-\item{null_formula}{Optional null-model formula required for \code{test_method = "lrt"}.}
+\item{null_formula}{Null-model formula required for \code{"lrt"} and \code{"pb"}.}
+
+\item{pb_nsim}{Bootstrap replicates for \code{test_method = "pb"} (default 100).}
+
+\item{contrast}{Optional named numeric vector of fixed-effect weights
+defining a linear contrast \verb{L'beta} to test (e.g. weights from \code{emmeans}).
+When supplied it overrides \code{test_term}/\code{test_method} with a Wald test of
+the contrast.}
 }
 \value{
 An object of class \code{mp_scenario}.

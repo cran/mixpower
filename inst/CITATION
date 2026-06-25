@@ -2,8 +2,9 @@ citHeader("To cite mixpower in publications use:")
 
 bibentry(
   bibtype = "Manual",
-  title = "mixpower: Simulation-Based Power Analysis for Linear Mixed-Effects Models",
-  author = person("Mixpower", "Alex Litovchenko"),
-  year = "2024",
-  note = "R package version 0.1.0"
+  title = "mixpower: Simulation-Based Power Analysis for Mixed-Effects Models",
+  author = person("Alex", "Litovchenko"),
+  year = "2026",
+  note = "R package version 1.1.1",
+  url = "https://github.com/alitovchenko/mixpower"
 )

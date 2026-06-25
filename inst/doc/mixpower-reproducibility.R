@@ -9,7 +9,7 @@ d <- mp_design(clusters = list(subject = 30), trials_per_cell = 4)
 a <- mp_assumptions(
   fixed_effects = list(`(Intercept)` = 0, condition = 0.3),
   residual_sd = 1,
-  icc = list(subject = 0.1)
+  random_effects = list(subject = list(intercept_sd = 0.1))
 )
 scn <- mp_scenario_lme4(
   y ~ condition + (1 | subject),
@@ -19,7 +19,7 @@ scn <- mp_scenario_lme4(
 )
 
 seed <- 123
-res <- mp_power(scn, nsim = 20, seed = seed)
+res <- mp_power(scn, nsim = 12, seed = seed)
 manifest <- mp_manifest(scn, seed = seed, session = FALSE)
 manifest
 
@@ -42,7 +42,7 @@ tab
 # mp_write_results(bundle, "power_results.json", format = "json")
 
 ## -----------------------------------------------------------------------------
-res2 <- mp_power(scn, nsim = 20, seed = manifest$seed)
+res2 <- mp_power(scn, nsim = 12, seed = manifest$seed)
 all.equal(res$power, res2$power)
 
 ## -----------------------------------------------------------------------------

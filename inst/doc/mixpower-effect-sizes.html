@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Effect sizes: maximal models, fitted pilots, and safeguard power</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Effect sizes: maximal models, fitted
+pilots, and safeguard power</h1>
+
+
+
+<p>The hardest part of a power analysis is rarely the simulation — it is
+choosing a defensible effect size and a realistic random-effects
+structure. This vignette ties together four <code>mixpower</code>
+features that address exactly that:</p>
+<ul>
+<li><strong>maximal models</strong> with one or more correlated random
+slopes,</li>
+<li><strong><code>mp_from_fit()</code></strong> to drive power from an
+existing (pilot or published) fit,</li>
+<li><strong><code>mp_sesoi()</code></strong> to plan around a
+<em>smallest effect size of interest</em>, and</li>
+<li><strong><code>mp_safeguard_effect()</code></strong> for an
+uncertainty-aware, conservative effect,</li>
+</ul>
+<p>and closes with how to read the <strong>Type S / Type M</strong>
+diagnostics that <code>mp_power()</code> reports for free.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(mixpower)</span></code></pre></div>
+<div id="maximal-models-correlated-random-slopes" class="section level2">
+<h2>Maximal models: correlated random slopes</h2>
+<p>A within-participant manipulation usually varies <em>within</em>
+every subject, so the “maximal” random-effects structure includes a
+random slope for it. Ignoring a real random slope inflates the Type I
+error rate, so simulating from — and fitting — the maximal model gives
+honest power.</p>
+<p><code>random_effects</code> takes a per-group
+<code>intercept_sd</code>, an optional named list of
+<code>slopes</code>, and an optional correlation <code>cor</code> (a
+scalar applied to every pair of terms, or a full correlation matrix).
+Each fixed effect you name also becomes a balanced design predictor, so
+several effects are crossed as a factorial.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">mp_design</span>(<span class="at">clusters =</span> <span class="fu">list</span>(<span class="at">subject =</span> <span class="dv">20</span>), <span class="at">trials_per_cell =</span> <span class="dv">6</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="fu">mp_assumptions</span>(</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="at">fixed_effects =</span> <span class="fu">list</span>(<span class="st">`</span><span class="at">(Intercept)</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="at">x1 =</span> <span class="fl">0.5</span>, <span class="at">x2 =</span> <span class="fl">0.3</span>),</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="at">random_effects =</span> <span class="fu">list</span>(<span class="at">subject =</span> <span class="fu">list</span>(</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>    <span class="at">intercept_sd =</span> <span class="fl">0.4</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>    <span class="at">slopes =</span> <span class="fu">list</span>(<span class="at">x1 =</span> <span class="fl">0.3</span>, <span class="at">x2 =</span> <span class="fl">0.3</span>),</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>    <span class="at">cor =</span> <span class="fl">0.1</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  )),</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>  <span class="at">residual_sd =</span> <span class="dv">1</span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>)</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>a</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt; &lt;mp_assumptions&gt;</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt;   fixed_effects:</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co">#&gt;     - (Intercept): 0</span></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt;     - x1: 0.5</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt;     - x2: 0.3</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt;   random_effects (SD on linear predictor):</span></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt;     - subject: intercept_sd = 0.4, slope_sd(x1 = 0.3, x2 = 0.3), cor = 0.1 </span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt;   residual_sd: 1</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>scn_max <span class="ot">&lt;-</span> <span class="fu">mp_scenario_lme4</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  y <span class="sc">~</span> x1 <span class="sc">+</span> x2 <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> x1 <span class="sc">+</span> x2 <span class="sc">|</span> subject),</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="at">design =</span> d,</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  <span class="at">assumptions =</span> a,</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="at">predictor =</span> <span class="st">&quot;x1&quot;</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>)</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="fu">mp_power</span>(scn_max, <span class="at">nsim =</span> <span class="dv">15</span>, <span class="at">seed =</span> <span class="dv">2024</span>)<span class="sc">$</span>power</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co">#&gt; [1] 0.7333333</span></span></code></pre></div>
+<p>For a single within-subject factor the same machinery reduces to the
+familiar <code>(1 + condition | subject)</code> form with one slope and
+an intercept-slope correlation.</p>
+</div>
+<div id="power-from-a-fitted-pilot-model" class="section level2">
+<h2>Power from a fitted pilot model</h2>
+<p>When you have a pilot or published model, <code>mp_from_fit()</code>
+turns it into a scenario: new responses are simulated from the fit
+(keeping its estimated variance components), the model is refit, and the
+focal term is tested. The fixed effects start at the fitted coefficients
+but can be varied for planning.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>m <span class="ot">&lt;-</span> lme4<span class="sc">::</span><span class="fu">lmer</span>(Reaction <span class="sc">~</span> Days <span class="sc">+</span> (Days <span class="sc">|</span> Subject), <span class="at">data =</span> lme4<span class="sc">::</span>sleepstudy)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>scn_fit <span class="ot">&lt;-</span> <span class="fu">mp_from_fit</span>(m, <span class="at">test_term =</span> <span class="st">&quot;Days&quot;</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>scn_fit<span class="sc">$</span>assumptions</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; &lt;mp_assumptions&gt;</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt;   fixed_effects:</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt;     - (Intercept): 251.405</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt;     - Days: 10.4673</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt;   random_effects (SD on linear predictor):</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt;     - Subject: intercept_sd = 24.7407, slope_sd(Days = 5.92214), cor = 0.0655512 </span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt;   residual_sd: 25.5918</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">mp_power</span>(scn_fit, <span class="at">nsim =</span> <span class="dv">15</span>, <span class="at">seed =</span> <span class="dv">1</span>)<span class="sc">$</span>power</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; [1] 1</span></span></code></pre></div>
+</div>
+<div id="planning-around-a-smallest-effect-size-of-interest" class="section level2">
+<h2>Planning around a smallest effect size of interest</h2>
+<p>Pilot and published effects are often optimistic. A robust habit is
+to plan power for the <em>smallest effect you would still care
+about</em>. <code>mp_sesoi()</code> returns a copy of a scenario with
+the focal effect replaced — either explicitly, or by scaling the assumed
+effect (the default <code>multiplier = 0.85</code> is a conservative 15%
+reduction).</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>scn_sesoi <span class="ot">&lt;-</span> <span class="fu">mp_sesoi</span>(scn_fit, <span class="at">multiplier =</span> <span class="fl">0.85</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="fu">c</span>(</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="at">full  =</span> scn_fit<span class="sc">$</span>assumptions<span class="sc">$</span>fixed_effects<span class="sc">$</span>Days,</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="at">sesoi =</span> scn_sesoi<span class="sc">$</span>assumptions<span class="sc">$</span>fixed_effects<span class="sc">$</span>Days</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>)</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt;      full     sesoi </span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; 10.467286  8.897193</span></span></code></pre></div>
+<p>Sweeping the multiplier shows how quickly power erodes as the effect
+of interest shrinks — the whole point of planning for a SESOI rather
+than the (large) pilot estimate:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>mults <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="fl">0.5</span>, <span class="fl">0.3</span>, <span class="fl">0.2</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>powers <span class="ot">&lt;-</span> <span class="fu">vapply</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  mults,</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  <span class="cf">function</span>(mult) <span class="fu">mp_power</span>(<span class="fu">mp_sesoi</span>(scn_fit, <span class="at">multiplier =</span> mult), <span class="at">nsim =</span> <span class="dv">15</span>, <span class="at">seed =</span> <span class="dv">1</span>)<span class="sc">$</span>power,</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  <span class="fu">numeric</span>(<span class="dv">1</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>)</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">multiplier =</span> mults, <span class="at">effect =</span> mults <span class="sc">*</span> scn_fit<span class="sc">$</span>assumptions<span class="sc">$</span>fixed_effects<span class="sc">$</span>Days, <span class="at">power =</span> powers)</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt;   multiplier    effect     power</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; 1        1.0 10.467286 1.0000000</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt; 2        0.5  5.233643 0.8000000</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; 3        0.3  3.140186 0.4666667</span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; 4        0.2  2.093457 0.3333333</span></span></code></pre></div>
+</div>
+<div id="safeguard-power" class="section level2">
+<h2>Safeguard power</h2>
+<p>A <em>safeguard</em> effect (Perugini, Gallucci &amp; Costantini,
+2014) goes one step further: instead of a point estimate, it uses the
+confidence-interval bound nearest zero, so sampling uncertainty in the
+pilot is propagated into the plan. <code>mp_safeguard_effect()</code>
+computes it; feed the result straight into <code>mp_sesoi()</code>.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>sg <span class="ot">&lt;-</span> <span class="fu">mp_safeguard_effect</span>(m, <span class="at">term =</span> <span class="st">&quot;Days&quot;</span>, <span class="at">conf_level =</span> <span class="fl">0.90</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>sg</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt; &lt;mp_safeguard&gt;</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt;   term:        Days</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt;   estimate:    10.4673 (se 1.54579)</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt;   90% CI:     [7.92469, 13.0099]</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt;   safeguard:   7.92469</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>scn_safe <span class="ot">&lt;-</span> <span class="fu">mp_sesoi</span>(scn_fit, <span class="at">effect =</span> sg)</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="fu">mp_power</span>(scn_safe, <span class="at">nsim =</span> <span class="dv">15</span>, <span class="at">seed =</span> <span class="dv">1</span>)<span class="sc">$</span>power</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co">#&gt; [1] 1</span></span></code></pre></div>
+<p>The safeguard effect (the lower confidence bound) is smaller than the
+point estimate. Here the <code>sleepstudy</code> <code>Days</code>
+effect is large enough that even its conservative bound stays well
+powered; for a borderline effect, that same buffer is exactly what stops
+an over-optimistic pilot from promising power it cannot deliver —
+compare it against the multiplier sweep above.</p>
+</div>
+<div id="reading-type-s-and-type-m-errors" class="section level2">
+<h2>Reading Type S and Type M errors</h2>
+<p>Every <code>mp_power()</code> run reports two diagnostics that go
+beyond the power figure (Gelman &amp; Carlin, 2014):</p>
+<ul>
+<li><strong>Type S</strong> (sign): among significant replicates, the
+fraction with the <em>wrong</em> sign.</li>
+<li><strong>Type M</strong> (magnitude): among significant replicates,
+the average ratio of the estimated to the true effect — the
+<em>exaggeration</em> factor.</li>
+</ul>
+<p>At low power, significant estimates are systematically inflated (Type
+M well above 1); at high power they are well calibrated.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>under <span class="ot">&lt;-</span> <span class="fu">mp_power</span>(<span class="fu">mp_sesoi</span>(scn_fit, <span class="at">multiplier =</span> <span class="fl">0.25</span>), <span class="at">nsim =</span> <span class="dv">25</span>, <span class="at">seed =</span> <span class="dv">7</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="fu">summary</span>(under)</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; $power</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt; [1] 0.44</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt; $mcse</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt; [1] 0.09927739</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="co">#&gt; $ci</span></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co">#&gt; [1] 0.2440237 0.6507184</span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="co">#&gt; $ci_method</span></span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="co">#&gt; [1] &quot;clopper-pearson&quot;</span></span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="co">#&gt; $diagnostics</span></span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="co">#&gt; $diagnostics$fail_rate</span></span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="co">#&gt; [1] 0</span></span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a><span class="co">#&gt; $diagnostics$singular_rate</span></span>
+<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a><span class="co">#&gt; [1] 0</span></span>
+<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a><span class="co">#&gt; $diagnostics$type_s</span></span>
+<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a><span class="co">#&gt; [1] 0</span></span>
+<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a><span class="co">#&gt; $diagnostics$type_m</span></span>
+<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a><span class="co">#&gt; [1] 1.595777</span></span>
+<span id="cb10-27"><a href="#cb10-27" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-28"><a href="#cb10-28" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-29"><a href="#cb10-29" tabindex="-1"></a><span class="co">#&gt; $nsim</span></span>
+<span id="cb10-30"><a href="#cb10-30" tabindex="-1"></a><span class="co">#&gt; [1] 25</span></span>
+<span id="cb10-31"><a href="#cb10-31" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-32"><a href="#cb10-32" tabindex="-1"></a><span class="co">#&gt; $alpha</span></span>
+<span id="cb10-33"><a href="#cb10-33" tabindex="-1"></a><span class="co">#&gt; [1] 0.05</span></span>
+<span id="cb10-34"><a href="#cb10-34" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-35"><a href="#cb10-35" tabindex="-1"></a><span class="co">#&gt; $failure_policy</span></span>
+<span id="cb10-36"><a href="#cb10-36" tabindex="-1"></a><span class="co">#&gt; [1] &quot;count_as_nondetect&quot;</span></span>
+<span id="cb10-37"><a href="#cb10-37" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-38"><a href="#cb10-38" tabindex="-1"></a><span class="co">#&gt; $conf_level</span></span>
+<span id="cb10-39"><a href="#cb10-39" tabindex="-1"></a><span class="co">#&gt; [1] 0.95</span></span>
+<span id="cb10-40"><a href="#cb10-40" tabindex="-1"></a>under<span class="sc">$</span>diagnostics<span class="sc">$</span>type_m</span>
+<span id="cb10-41"><a href="#cb10-41" tabindex="-1"></a><span class="co">#&gt; [1] 1.595777</span></span></code></pre></div>
+<p>A Type M near 1 means significant estimates are about right; a value
+like 1.5 means published “hits” from this design would overstate the
+effect by ~50%. This is why planning for a SESOI or safeguard effect —
+and powering well — matters for replicable findings.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

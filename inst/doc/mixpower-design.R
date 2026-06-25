@@ -14,7 +14,7 @@ design <- mp_design(
 assumptions <- mp_assumptions(
   fixed_effects = list(`(Intercept)` = 0, condition = 0.3),
   residual_sd = 1,
-  icc = list(subject = 0.1)
+  random_effects = list(subject = list(intercept_sd = 0.1))
 )
 
 design

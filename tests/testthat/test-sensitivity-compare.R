@@ -1,11 +1,12 @@
 test_that("sensitivity comparison across Wald and LRT runs with matched vary grid", {
   skip_if_not_installed("lme4")
+  skip_on_cran()
 
   d <- mp_design(clusters = list(subject = 20), trials_per_cell = 4)
   a <- mp_assumptions(
     fixed_effects = list(`(Intercept)` = 0, condition = 0.4),
     residual_sd = 1,
-    icc = list(subject = 0.1)
+    random_effects = list(subject = list(intercept_sd = 0.1))
   )
 
   scn_wald <- mp_scenario_lme4(

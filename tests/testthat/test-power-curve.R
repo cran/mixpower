@@ -1,4 +1,5 @@
 test_that("mp_power_curve wraps sensitivity for a single parameter", {
+  skip_on_cran()
   d <- mp_design(clusters = list(subject = 20), trials_per_cell = 2)
   a <- mp_assumptions(fixed_effects = list(condition = 0.3), residual_sd = 1)
 

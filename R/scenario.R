@@ -52,6 +52,14 @@ mp_scenario <- function(formula,
     .stop("`notes` must be a length-1 character string or NULL.")
   }
 
+  if (!is.null(simulate_fun) && !is.null(fit_fun) && !is.null(test_fun)) {
+    validate_mp_backend(list(
+      simulate_fun = simulate_fun,
+      fit_fun = fit_fun,
+      test_fun = test_fun
+    ))
+  }
+
   out <- list(
     formula = formula,
     design = design,

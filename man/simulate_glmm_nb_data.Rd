@@ -2,7 +2,7 @@
 % Please edit documentation in R/simulate-glmm-nb.R
 \name{simulate_glmm_nb_data}
 \alias{simulate_glmm_nb_data}
-\title{Simulate count outcome data for a Negative Binomial GLMM}
+\title{Simulate count outcome data for a Negative Binomial GLMM with random effects}
 \usage{
 simulate_glmm_nb_data(
   scenario,
@@ -24,11 +24,15 @@ simulate_glmm_nb_data(
 
 \item{item}{Optional item ID column name.}
 
-\item{theta}{NB dispersion parameter (size). Larger = less over-dispersion.}
+\item{theta}{NB dispersion parameter (size); larger means less
+over-dispersion. Defaults to \code{scenario$assumptions$theta} or 1.}
 }
 \value{
 A data.frame with outcome and predictors.
 }
 \description{
-Simulate count outcome data for a Negative Binomial GLMM
+Thin wrapper over the shared simulation engine (\code{.mp_simulate_mixed}) with a
+log link and negative-binomial response. Random-effect sizes (intercept and
+optional slope on \code{predictor}) come from
+\code{scenario$assumptions$random_effects}.
 }

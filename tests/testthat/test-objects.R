@@ -4,7 +4,7 @@ testthat::test_that("mp_design validates inputs", {
 
   expect_error(mp_design(list(subject = -1), 1), "must be > 0")
   expect_error(mp_design(list(), 1), "named")
-  expect_error(mp_design(list(subject = 10), 0), "must be > 0")
+  expect_error(mp_design(list(subject = 10), 0), "positive integer")
 })
 
 testthat::test_that("mp_assumptions validates inputs", {
@@ -12,8 +12,24 @@ testthat::test_that("mp_assumptions validates inputs", {
   expect_true(inherits(a, "mp_assumptions"))
 
   expect_error(mp_assumptions(list(condition = NA)), "without NA")
-  expect_error(mp_assumptions(list(condition = 0.2), icc = list(subject = 1)), "in \\[0, 1\\)")
   expect_error(mp_assumptions(list(condition = 0.2), residual_sd = -1), "non-negative")
+
+  # random_effects: intercept_sd must be a non-negative SD (no [0,1) cap)
+  ok <- mp_assumptions(
+    list(condition = 0.2),
+    random_effects = list(subject = list(intercept_sd = 1.5))
+  )
+  expect_equal(ok$random_effects$subject$intercept_sd, 1.5)
+  expect_error(
+    mp_assumptions(list(condition = 0.2),
+                   random_effects = list(subject = list(intercept_sd = -1))),
+    "non-negative"
+  )
+  expect_error(
+    mp_assumptions(list(condition = 0.2),
+                   random_effects = list(subject = list(slope_sd = 1))),
+    "unsupported field"
+  )
 })
 
 testthat::test_that("mp_scenario validates inputs", {

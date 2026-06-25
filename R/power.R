@@ -18,7 +18,17 @@
 #'   - `"minimal"`: only per-sim summary rows.
 #'   - `"fits"`: also store fit objects (may be large).
 #'   - `"data"`: also store simulated data (can be very large).
-#' @param conf_level Confidence level for the Wald interval (default 0.95).
+#' @param conf_level Confidence level for the power interval (default 0.95).
+#' @param ci_method Power CI type: `"clopper-pearson"` (default, exact binomial)
+#'   or `"wald"` (normal approximation).
+#' @param aggregate `"full"` (default) stores every replicate in `sims`. `"streaming"`
+#'   accumulates counts only (lower memory); requires `keep = "minimal"` and returns
+#'   an empty `sims` data frame with the same column names as the full run.
+#'
+#' @details
+#' Diagnostics include Type S (wrong-sign) and Type M (exaggeration-ratio) errors
+#' among significant replicates (Gelman & Carlin, 2014), computed when the tested
+#' term's true effect is known and non-zero and the backend reports an estimate.
 #'
 #' @return An object of class `mp_power`.
 #' @export
@@ -56,7 +66,9 @@ mp_power <- function(scenario,
                      seed = NULL,
                      failure_policy = c("count_as_nondetect", "exclude"),
                      keep = c("minimal", "fits", "data"),
-                     conf_level = 0.95) {
+                     conf_level = 0.95,
+                     ci_method = c("clopper-pearson", "wald"),
+                     aggregate = c("full", "streaming")) {
   .assert_class(scenario, "mp_scenario", "scenario")
   .assert_is_pos_int(nsim, "nsim")
   .assert_is_num(alpha, "alpha")
@@ -65,6 +77,12 @@ mp_power <- function(scenario,
   if (conf_level <= 0 || conf_level >= 1) .stop("`conf_level` must be in (0, 1).")
   failure_policy <- match.arg(failure_policy)
   keep <- match.arg(keep)
+  ci_method <- match.arg(ci_method)
+  aggregate <- match.arg(aggregate)
+  true_effect <- .mp_true_effect(scenario)
+  if (identical(aggregate, "streaming") && !identical(keep, "minimal")) {
+    .stop('`aggregate = "streaming"` requires `keep = "minimal"`.')
+  }
 
   eng <- scenario$engine
   if (is.null(eng$simulate_fun) || is.null(eng$fit_fun) || is.null(eng$test_fun)) {
@@ -73,7 +91,94 @@ mp_power <- function(scenario,
 
   rep_seeds <- .rep_seeds(seed, nsim)
 
-  # Storage
+  if (identical(aggregate, "streaming")) {
+    n_fail <- 0L
+    n_sing <- 0L
+    detected <- 0L
+    denom_exc <- 0L
+    valid_true <- !is.na(true_effect) && true_effect != 0
+    n_sig <- 0L
+    n_wrong_sign <- 0L
+    sum_ratio <- 0
+
+    for (i in seq_len(nsim)) {
+      si <- rep_seeds[[i]]
+      out_i <- .run_one_rep(scenario, alpha = alpha, seed = si)
+      row <- out_i$row
+      if (!isTRUE(row$fit_ok)) n_fail <- n_fail + 1L
+      if (isTRUE(row$singular)) n_sing <- n_sing + 1L
+      p <- row$p_value
+      is_sig <- !is.na(p) && p < alpha
+      if (failure_policy == "count_as_nondetect") {
+        if (is_sig) detected <- detected + 1L
+      } else {
+        if (!is.na(p)) {
+          denom_exc <- denom_exc + 1L
+          if (p < alpha) detected <- detected + 1L
+        }
+      }
+      if (valid_true && is_sig && is.finite(row$estimate)) {
+        n_sig <- n_sig + 1L
+        if (sign(row$estimate) != sign(true_effect)) n_wrong_sign <- n_wrong_sign + 1L
+        sum_ratio <- sum_ratio + abs(row$estimate) / abs(true_effect)
+      }
+    }
+
+    if (failure_policy == "count_as_nondetect") {
+      denom <- nsim
+    } else {
+      denom <- denom_exc
+    }
+
+    power_hat <- if (denom == 0L) NA_real_ else as.numeric(detected) / as.numeric(denom)
+    mcse <- if (is.na(power_hat)) NA_real_ else sqrt(power_hat * (1 - power_hat) / denom)
+    ci <- .mp_power_ci(detected, denom, conf_level, ci_method)
+
+    fail_rate <- n_fail / nsim
+    singular_rate <- n_sing / nsim
+    type_s <- if (valid_true && n_sig > 0L) n_wrong_sign / n_sig else NA_real_
+    type_m <- if (valid_true && n_sig > 0L) sum_ratio / n_sig else NA_real_
+
+    sim_tbl <- data.frame(
+      replicate = integer(),
+      p_value = double(),
+      estimate = double(),
+      detected = logical(),
+      fit_ok = logical(),
+      singular = logical(),
+      warning = character(),
+      error = character()
+    )
+    attr(sim_tbl, "aggregate") <- "streaming"
+
+    res <- list(
+      scenario = scenario,
+      nsim = as.integer(nsim),
+      alpha = alpha,
+      seed = seed,
+      failure_policy = failure_policy,
+      keep = keep,
+      conf_level = conf_level,
+      ci_method = ci_method,
+      aggregate = aggregate,
+      sims = sim_tbl,
+      power = power_hat,
+      mcse = mcse,
+      ci = ci,
+      diagnostics = list(
+        fail_rate = fail_rate,
+        singular_rate = singular_rate,
+        type_s = type_s,
+        type_m = type_m
+      ),
+      fits = NULL,
+      data = NULL
+    )
+    class(res) <- "mp_power"
+    return(res)
+  }
+
+  # Storage (full aggregate)
   rows <- vector("list", nsim)
   fits <- if (keep %in% c("fits", "data")) vector("list", nsim) else NULL
   datas <- if (keep == "data") vector("list", nsim) else NULL
@@ -87,10 +192,19 @@ mp_power <- function(scenario,
   }
 
   sim_tbl <- do.call(rbind, lapply(rows, as.data.frame))
-  sim_tbl$replicate <- seq_len(nsim)
+  .mp_aggregate_sims(
+    sim_tbl, scenario, alpha, seed, failure_policy, keep,
+    conf_level, ci_method, aggregate, nsim, true_effect, fits, datas
+  )
+}
 
-  # Determine detection
-  # p_value may be NA when fit/test fails
+# Aggregate a table of per-replicate rows into an `mp_power` object. Shared by
+# mp_power()'s full path and by mp_power_checkpoint() (which combines batches),
+# so the power estimate, interval, and diagnostics are computed identically.
+.mp_aggregate_sims <- function(sim_tbl, scenario, alpha, seed, failure_policy,
+                               keep, conf_level, ci_method, aggregate, nsim,
+                               true_effect, fits = NULL, datas = NULL) {
+  sim_tbl$replicate <- seq_len(nrow(sim_tbl))
   detected_raw <- !is.na(sim_tbl$p_value) & sim_tbl$p_value < alpha
 
   if (failure_policy == "count_as_nondetect") {
@@ -103,17 +217,14 @@ mp_power <- function(scenario,
   }
 
   power_hat <- if (denom == 0) NA_real_ else detected / denom
-  # MCSE and CI (simple Wald CI; conservative alternatives can be added later)
   mcse <- if (is.na(power_hat)) NA_real_ else sqrt(power_hat * (1 - power_hat) / denom)
-  z <- stats::qnorm(1 - (1 - conf_level) / 2)
-  ci <- if (is.na(power_hat)) c(NA_real_, NA_real_) else {
-    lo <- max(0, power_hat - z * mcse)
-    hi <- min(1, power_hat + z * mcse)
-    c(lo, hi)
-  }
+  ci <- .mp_power_ci(detected, denom, conf_level, ci_method)
 
   fail_rate <- mean(!sim_tbl$fit_ok)
   singular_rate <- mean(sim_tbl$singular %in% TRUE, na.rm = TRUE)
+
+  sig_est <- if (!is.null(sim_tbl$estimate)) sim_tbl$estimate[detected_raw] else numeric()
+  tsm <- .mp_type_sm(sig_est, true_effect)
 
   res <- list(
     scenario = scenario,
@@ -123,13 +234,17 @@ mp_power <- function(scenario,
     failure_policy = failure_policy,
     keep = keep,
     conf_level = conf_level,
+    ci_method = ci_method,
+    aggregate = aggregate,
     sims = sim_tbl,
     power = power_hat,
     mcse = mcse,
     ci = ci,
     diagnostics = list(
       fail_rate = fail_rate,
-      singular_rate = singular_rate
+      singular_rate = singular_rate,
+      type_s = tsm$type_s,
+      type_m = tsm$type_m
     ),
     fits = fits,
     data = datas
@@ -187,8 +302,8 @@ mp_power <- function(scenario,
   )
 
   if (is.null(sim_res) || !is.data.frame(sim_res)) {
-    row <- list(p_value = NA_real_, detected = FALSE, fit_ok = FALSE, singular = NA,
-                warning = warn, error = err)
+    row <- list(p_value = NA_real_, estimate = NA_real_, detected = FALSE,
+                fit_ok = FALSE, singular = NA, warning = warn, error = err)
     return(list(row = row, fit = NULL, data = data))
   }
   data <- sim_res
@@ -203,8 +318,8 @@ mp_power <- function(scenario,
   )
 
   if (is.null(fit_res)) {
-    row <- list(p_value = NA_real_, detected = FALSE, fit_ok = FALSE, singular = NA,
-                warning = warn, error = err)
+    row <- list(p_value = NA_real_, estimate = NA_real_, detected = FALSE,
+                fit_ok = FALSE, singular = NA, warning = warn, error = err)
     return(list(row = row, fit = NULL, data = data))
   }
 
@@ -229,9 +344,15 @@ mp_power <- function(scenario,
   } else {
     pval <- NA_real_
   }
+  est <- if (!is.null(test_res) && !is.null(test_res$estimate)) {
+    as.numeric(test_res$estimate)
+  } else {
+    NA_real_
+  }
 
   row <- list(
     p_value = pval,
+    estimate = est,
     detected = !is.na(pval) && pval < alpha,
     fit_ok = fit_ok,
     singular = singular,
@@ -250,14 +371,18 @@ print.mp_power <- function(x, ...) {
   cat(sprintf("  power: %s\n", ifelse(is.na(x$power), "NA", formatC(x$power, digits = 3, format = "f"))))
   cat(sprintf("  mcse: %s\n", ifelse(is.na(x$mcse), "NA", formatC(x$mcse, digits = 3, format = "f"))))
   cat(sprintf(
-    "  %d%% CI: [%s, %s]\n",
+    "  %d%% CI (%s): [%s, %s]\n",
     round(x$conf_level * 100),
+    `%||%`(x$ci_method, "wald"),
     ifelse(is.na(x$ci[1]), "NA", formatC(x$ci[1], digits = 3, format = "f")),
     ifelse(is.na(x$ci[2]), "NA", formatC(x$ci[2], digits = 3, format = "f"))
   ))
   cat("  diagnostics:\n")
   cat(sprintf("    - fail_rate: %s\n", formatC(x$diagnostics$fail_rate, digits = 3, format = "f")))
   cat(sprintf("    - singular_rate: %s\n", formatC(x$diagnostics$singular_rate, digits = 3, format = "f")))
+  fmt <- function(v, d) ifelse(is.null(v) || is.na(v), "NA", formatC(v, digits = d, format = "f"))
+  cat(sprintf("    - type_s: %s\n", fmt(x$diagnostics$type_s, 3)))
+  cat(sprintf("    - type_m: %s\n", fmt(x$diagnostics$type_m, 2)))
   invisible(x)
 }
 
@@ -267,6 +392,7 @@ summary.mp_power <- function(object, ...) {
     power = object$power,
     mcse = object$mcse,
     ci = object$ci,
+    ci_method = `%||%`(object$ci_method, "wald"),
     diagnostics = object$diagnostics,
     nsim = object$nsim,
     alpha = object$alpha,

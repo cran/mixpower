@@ -348,7 +348,7 @@ summarize sensitivity analyses with <code>mp_sensitivity()</code>.</p>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="fu">mp_assumptions</span>(</span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="at">fixed_effects =</span> <span class="fu">list</span>(<span class="st">`</span><span class="at">(Intercept)</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="at">condition =</span> <span class="fl">0.3</span>),</span>
 <span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="at">residual_sd =</span> <span class="dv">1</span>,</span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="at">icc =</span> <span class="fu">list</span>(<span class="at">subject =</span> <span class="fl">0.1</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="at">random_effects =</span> <span class="fu">list</span>(<span class="at">subject =</span> <span class="fu">list</span>(<span class="at">intercept_sd =</span> <span class="fl">0.1</span>))</span>
 <span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>)</span>
 <span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a></span>
 <span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>scn <span class="ot">&lt;-</span> <span class="fu">mp_scenario_lme4</span>(</span>
@@ -364,12 +364,23 @@ summarize sensitivity analyses with <code>mp_sensitivity()</code>.</p>
 <span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>  <span class="at">nsim =</span> <span class="dv">10</span>,</span>
 <span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>  <span class="at">seed =</span> <span class="dv">1</span></span>
 <span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>)</span>
-<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a></span>
-<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>sens<span class="sc">$</span>results[, <span class="fu">c</span>(<span class="st">&quot;estimate&quot;</span>, <span class="st">&quot;mcse&quot;</span>, <span class="st">&quot;failure_rate&quot;</span>, <span class="st">&quot;singular_rate&quot;</span>)]</span>
-<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt;   estimate mcse failure_rate singular_rate</span></span>
-<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt; 1        0    0            0             0</span></span>
-<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt; 2        0    0            0             0</span></span>
-<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt; 3        0    0            0             0</span></span></code></pre></div>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a></span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a>sens<span class="sc">$</span>results[, <span class="fu">c</span>(<span class="st">&quot;estimate&quot;</span>, <span class="st">&quot;mcse&quot;</span>, <span class="st">&quot;failure_rate&quot;</span>, <span class="st">&quot;singular_rate&quot;</span>)]</span>
+<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a><span class="co">#&gt;   estimate       mcse failure_rate singular_rate</span></span>
+<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a><span class="co">#&gt; 1      0.1 0.09486833            0           0.3</span></span>
+<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a><span class="co">#&gt; 2      0.1 0.09486833            0           0.4</span></span>
+<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a><span class="co">#&gt; 3      0.6 0.15491933            0           0.4</span></span></code></pre></div>
 
 
 

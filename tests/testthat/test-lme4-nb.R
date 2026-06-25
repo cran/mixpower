@@ -1,11 +1,12 @@
 test_that("negative binomial backend runs end-to-end", {
   skip_if_not_installed("lme4")
+  skip_on_cran()
 
   d <- mp_design(clusters = list(subject = 20), trials_per_cell = 4)
   a <- mp_assumptions(
     fixed_effects = list(`(Intercept)` = 0, condition = 0.4),
     residual_sd = 1,
-    icc = list(subject = 0.3)
+    random_effects = list(subject = list(intercept_sd = 0.3))
   )
   a$theta <- 1.5
 
@@ -24,6 +25,7 @@ test_that("negative binomial backend runs end-to-end", {
 
 test_that("negative binomial LRT requires explicit null_formula", {
   skip_if_not_installed("lme4")
+  skip_on_cran()
 
   d <- mp_design(clusters = list(subject = 10), trials_per_cell = 3)
   a <- mp_assumptions(

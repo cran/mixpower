@@ -7,12 +7,14 @@
 mp_report_table(x, ...)
 }
 \arguments{
-\item{x}{An object of class \code{mp_power}, \code{mp_sensitivity}, \code{mp_power_curve}, or from \code{\link[=mp_bundle_results]{mp_bundle_results()}}.}
+\item{x}{An object of class \code{mp_power}, \code{mp_sensitivity}, \code{mp_power_curve},
+\code{mp_calibration}, or from \code{\link[=mp_bundle_results]{mp_bundle_results()}}.}
 
 \item{...}{Unused; reserved for future arguments.}
 }
 \value{
-A data frame: for \code{mp_power} one row; for sensitivity/curve one row
+A data frame: for \code{mp_power} one row; for \code{mp_calibration} a one-row
+Type I summary; for sensitivity/curve one row
 per grid cell with parameter column(s), \code{power_estimate}, \code{ci_low}, \code{ci_high},
 \code{failure_rate}, \code{singular_rate}, \code{n_effective}, \code{nsim}.
 }

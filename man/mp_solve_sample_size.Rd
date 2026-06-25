@@ -21,7 +21,8 @@ mp_solve_sample_size(
 
 \item{parameter}{Dotted path of the single parameter to vary (e.g. \code{"clusters.subject"}).}
 
-\item{grid}{Numeric vector of candidate values.}
+\item{grid}{Numeric vector of candidate values. Use \code{\link[=mp_grid_sample_size]{mp_grid_sample_size()}} to
+build a grid from bounds and either \code{length.out} or \code{by}.}
 
 \item{target_power}{Target power threshold (default 0.8).}
 

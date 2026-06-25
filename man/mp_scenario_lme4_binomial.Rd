@@ -13,8 +13,9 @@ mp_scenario_lme4_binomial(
   outcome = "y",
   item = NULL,
   test_term = predictor,
-  test_method = c("wald", "lrt"),
-  null_formula = NULL
+  test_method = c("wald", "lrt", "pb"),
+  null_formula = NULL,
+  pb_nsim = 100L
 )
 }
 \arguments{
@@ -34,9 +35,11 @@ mp_scenario_lme4_binomial(
 
 \item{test_term}{Optional explicit term to test. Defaults to \code{predictor}.}
 
-\item{test_method}{Inference method (\code{"wald"} or \code{"lrt"}).}
+\item{test_method}{Inference method: \code{"wald"} (default), \code{"lrt"}, or \code{"pb"}.}
 
-\item{null_formula}{Optional null model formula for \code{"lrt"} tests.}
+\item{null_formula}{Null-model formula required for \code{"lrt"} and \code{"pb"}.}
+
+\item{pb_nsim}{Bootstrap replicates for \code{test_method = "pb"} (default 100).}
 }
 \value{
 An object of class \code{mp_scenario}.

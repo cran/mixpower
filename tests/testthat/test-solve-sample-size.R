@@ -1,4 +1,5 @@
 test_that("mp_solve_sample_size returns a solution when power achieved", {
+  skip_on_cran()
   d <- mp_design(clusters = list(subject = 10), trials_per_cell = 2)
   a <- mp_assumptions(fixed_effects = list(condition = 0.5), residual_sd = 1)
 
@@ -35,6 +36,7 @@ test_that("mp_solve_sample_size returns a solution when power achieved", {
 })
 
 test_that("mp_solve_sample_size returns NA when target never achieved", {
+  skip_on_cran()
   d <- mp_design(clusters = list(subject = 10), trials_per_cell = 2)
   a <- mp_assumptions(fixed_effects = list(condition = 0.001), residual_sd = 10)
 
@@ -66,4 +68,18 @@ test_that("mp_solve_sample_size returns NA when target never achieved", {
   )
 
   expect_identical(out$solution, NA_real_)
+})
+
+test_that("mp_grid_sample_size returns valid grid for solver", {
+  g1 <- mp_grid_sample_size(20, 100, length.out = 9)
+  expect_equal(length(g1), 9)
+  expect_equal(g1[1], 20)
+  expect_equal(g1[9], 100)
+  expect_true(is.numeric(g1))
+
+  g2 <- mp_grid_sample_size(20, 100, by = 10)
+  expect_equal(g2, c(20, 30, 40, 50, 60, 70, 80, 90, 100))
+
+  expect_error(mp_grid_sample_size(20, 100), "Specify either")
+  expect_error(mp_grid_sample_size(20, 100, length.out = 5, by = 10), "Specify only one")
 })

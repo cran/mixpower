@@ -2,7 +2,7 @@
 % Please edit documentation in R/simulate-glmm.R
 \name{simulate_glmm_binomial_data}
 \alias{simulate_glmm_binomial_data}
-\title{Simulate binary outcome data for a GLMM with random intercepts}
+\title{Simulate binary outcome data for a GLMM with random effects}
 \usage{
 simulate_glmm_binomial_data(
   scenario,
@@ -27,5 +27,8 @@ simulate_glmm_binomial_data(
 A data.frame with outcome and predictors.
 }
 \description{
-Simulate binary outcome data for a GLMM with random intercepts
+Thin wrapper over the shared simulation engine (\code{.mp_simulate_mixed}) with a
+logit link and Bernoulli response. Random-effect sizes (intercept and
+optional slope on \code{predictor}) come from
+\code{scenario$assumptions$random_effects}.
 }

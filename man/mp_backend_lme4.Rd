@@ -9,8 +9,9 @@ mp_backend_lme4(
   subject = "subject",
   outcome = "y",
   item = NULL,
-  test_method = c("wald", "lrt"),
-  null_formula = NULL
+  test_method = c("wald", "lrt", "satterthwaite", "kenward-roger", "pb"),
+  null_formula = NULL,
+  pb_nsim = 100L
 )
 }
 \arguments{
@@ -22,9 +23,16 @@ mp_backend_lme4(
 
 \item{item}{Optional item ID column name.}
 
-\item{test_method}{Inference method: \code{"wald"} (default) or \code{"lrt"}.}
+\item{test_method}{Inference method: \code{"wald"} (normal-approximation z test,
+the fast default), \code{"satterthwaite"} or \code{"kenward-roger"} (df-corrected
+t tests via lmerTest/pbkrtest; recommended for small samples), \code{"lrt"}
+(likelihood-ratio test), or \code{"pb"} (parametric-bootstrap LRT via pbkrtest).}
 
-\item{null_formula}{Optional null-model formula required when \code{test_method = "lrt"}.}
+\item{null_formula}{Null-model formula required for \code{"lrt"} and \code{"pb"}.}
+
+\item{pb_nsim}{Bootstrap replicates for \code{test_method = "pb"} (default 100).
+Note this multiplies cost: each power replicate refits the model \code{pb_nsim}
+times.}
 }
 \value{
 A list containing \code{simulate_fun}, \code{fit_fun}, and \code{test_fun}.

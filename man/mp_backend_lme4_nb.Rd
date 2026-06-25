@@ -9,8 +9,9 @@ mp_backend_lme4_nb(
   subject = "subject",
   outcome = "y",
   item = NULL,
-  test_method = c("wald", "lrt"),
-  null_formula = NULL
+  test_method = c("wald", "lrt", "pb"),
+  null_formula = NULL,
+  pb_nsim = 100L
 )
 }
 \arguments{
@@ -22,9 +23,12 @@ mp_backend_lme4_nb(
 
 \item{item}{Optional item ID column name.}
 
-\item{test_method}{Inference method (\code{"wald"} or \code{"lrt"}).}
+\item{test_method}{Inference method: \code{"wald"} (default), \code{"lrt"}, or \code{"pb"}
+(parametric-bootstrap LRT via pbkrtest).}
 
-\item{null_formula}{Optional null model formula for \code{"lrt"} tests.}
+\item{null_formula}{Null-model formula required for \code{"lrt"} and \code{"pb"}.}
+
+\item{pb_nsim}{Bootstrap replicates for \code{test_method = "pb"} (default 100).}
 }
 \value{
 A list containing \code{simulate_fun}, \code{fit_fun}, and \code{test_fun}.

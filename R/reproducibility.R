@@ -149,15 +149,31 @@ summary.mp_bundle <- function(object, ...) {
 #' and effective simulation counts. Works with [mp_power], [mp_sensitivity],
 #' [mp_power_curve], or the result of [mp_bundle_results()] (uses the bundled result).
 #'
-#' @param x An object of class `mp_power`, `mp_sensitivity`, `mp_power_curve`, or from [mp_bundle_results()].
+#' @param x An object of class `mp_power`, `mp_sensitivity`, `mp_power_curve`,
+#'   `mp_calibration`, or from [mp_bundle_results()].
 #' @param ... Unused; reserved for future arguments.
-#' @return A data frame: for `mp_power` one row; for sensitivity/curve one row
+#' @return A data frame: for `mp_power` one row; for `mp_calibration` a one-row
+#'   Type I summary; for sensitivity/curve one row
 #'   per grid cell with parameter column(s), `power_estimate`, `ci_low`, `ci_high`,
 #'   `failure_rate`, `singular_rate`, `n_effective`, `nsim`.
 #' @export
 mp_report_table <- function(x, ...) {
   if (inherits(x, "mp_bundle")) {
     x <- x$result
+  }
+
+  if (inherits(x, "mp_calibration")) {
+    return(data.frame(
+      term = x$term,
+      alpha = x$alpha,
+      type1 = x$type1,
+      ci_low = x$ci[[1]],
+      ci_high = x$ci[[2]],
+      verdict = x$verdict,
+      nsim = x$nsim,
+      stringsAsFactors = FALSE,
+      check.names = FALSE
+    ))
   }
 
   if (inherits(x, "mp_power")) {
@@ -172,6 +188,8 @@ mp_report_table <- function(x, ...) {
       ci_high = x$ci[2],
       failure_rate = x$diagnostics$fail_rate,
       singular_rate = x$diagnostics$singular_rate,
+      type_s = `%||%`(x$diagnostics$type_s, NA_real_),
+      type_m = `%||%`(x$diagnostics$type_m, NA_real_),
       n_effective = n_effective,
       nsim = x$nsim,
       stringsAsFactors = FALSE,

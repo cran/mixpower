@@ -1,11 +1,12 @@
 test_that("binomial lme4 backend runs end-to-end", {
   skip_if_not_installed("lme4")
+  skip_on_cran()
 
   d <- mp_design(clusters = list(subject = 20), trials_per_cell = 4)
   a <- mp_assumptions(
     fixed_effects = list(`(Intercept)` = 0, condition = 0.6),
     residual_sd = 1,
-    icc = list(subject = 0.4)
+    random_effects = list(subject = list(intercept_sd = 0.4))
   )
 
   scn <- mp_scenario_lme4_binomial(
@@ -23,6 +24,7 @@ test_that("binomial lme4 backend runs end-to-end", {
 
 test_that("binomial LRT requires explicit null_formula", {
   skip_if_not_installed("lme4")
+  skip_on_cran()
 
   d <- mp_design(clusters = list(subject = 10), trials_per_cell = 3)
   a <- mp_assumptions(

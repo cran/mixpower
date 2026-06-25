@@ -4,14 +4,35 @@
 \alias{mp_assumptions}
 \title{Create modeling assumptions for simulation-based power}
 \usage{
-mp_assumptions(fixed_effects, icc = NULL, residual_sd = NULL, notes = NULL)
+mp_assumptions(
+  fixed_effects,
+  random_effects = NULL,
+  icc = NULL,
+  residual_sd = NULL,
+  notes = NULL
+)
 }
 \arguments{
-\item{fixed_effects}{Named list of numeric values (e.g., \code{list(condition = 0.4)}).}
+\item{fixed_effects}{Named list of numeric values (e.g.,
+\code{list("(Intercept)" = 0, condition = 0.4)}).}
 
-\item{icc}{Optional named list of ICC values in [0, 1).}
+\item{random_effects}{Optional named list keyed by grouping factor. Each
+element is a named list with \code{intercept_sd} (the random-intercept SD on the
+linear-predictor scale) and, optionally, \code{slopes} (a named list of
+random-slope SDs, one per predictor) and \code{cor}. For example,
+\code{list(subject = list(intercept_sd = 0.5, slopes = list(condition = 0.3), cor = 0.2))}
+encodes a correlated random intercept and slope, i.e.
+\code{(1 + condition | subject)}. With several slopes, \code{cor} may be a single
+scalar (applied to every pair of terms) or a full correlation matrix over
+\code{c("(Intercept)", names(slopes))}; each fixed effect named in
+\code{fixed_effects} also becomes a balanced design predictor.}
 
-\item{residual_sd}{Optional non-negative numeric residual SD.}
+\item{icc}{Deprecated. Previously documented as an intraclass correlation
+but used as a random-intercept SD. If supplied it is interpreted as
+\code{intercept_sd} and folded into \code{random_effects} with a warning. Use
+\code{random_effects} instead.}
+
+\item{residual_sd}{Optional non-negative numeric residual SD (Gaussian).}
 
 \item{notes}{Optional free text.}
 }
@@ -19,11 +40,15 @@ mp_assumptions(fixed_effects, icc = NULL, residual_sd = NULL, notes = NULL)
 An object of class \code{mp_assumptions}.
 }
 \description{
-Assumptions encode effect sizes and nuisance parameters. Values may be scalars
-or vectors (for later sensitivity workflows), but \code{mp_power()} expects scalars
-unless used inside a grid wrapper.
+Assumptions encode effect sizes and the variance components used to simulate
+data. Random-effect sizes are given as standard deviations on the linear
+predictor (the scale lme4 reports), via \code{random_effects}.
 }
 \examples{
-a <- mp_assumptions(fixed_effects = list(condition = 0.4), residual_sd = 1)
+a <- mp_assumptions(
+  fixed_effects = list("(Intercept)" = 0, condition = 0.4),
+  random_effects = list(subject = list(intercept_sd = 0.5)),
+  residual_sd = 1
+)
 a
 }

@@ -1,5 +1,6 @@
 testthat::test_that("lme4 backend produces runnable scenario and mp_power executes", {
   skip_if_not_installed("lme4")
+  skip_on_cran()
 
   d <- mp_design(clusters = list(subject = 30), trials_per_cell = 5)
   a <- mp_assumptions(fixed_effects = list(condition = 0.5), residual_sd = 1)
@@ -21,6 +22,7 @@ testthat::test_that("lme4 backend produces runnable scenario and mp_power execut
 
 testthat::test_that("power is higher with larger effect (very small nsim sanity check)", {
   skip_if_not_installed("lme4")
+  skip_on_cran()
 
   d <- mp_design(clusters = list(subject = 25), trials_per_cell = 6)
 

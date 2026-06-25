@@ -2,20 +2,24 @@
 % Please edit documentation in R/sensitivity.R
 \name{plot.mp_sensitivity}
 \alias{plot.mp_sensitivity}
-\title{Plot a one-dimensional sensitivity curve}
+\title{Plot a sensitivity analysis}
 \usage{
-\method{plot}{mp_sensitivity}(x, y = c("estimate", "failure_rate"), ...)
+\method{plot}{mp_sensitivity}(x, y = c("estimate", "failure_rate", "singular_rate", "n_effective"), ...)
 }
 \arguments{
 \item{x}{An \code{mp_sensitivity} object.}
 
-\item{y}{What to plot on the y-axis (\code{"estimate"} or \code{"failure_rate"}).}
+\item{y}{What to plot: \code{"estimate"} (power), \code{"failure_rate"},
+\code{"singular_rate"}, or \code{"n_effective"}.}
 
-\item{...}{Additional graphical arguments passed to \code{\link[graphics:plot.default]{graphics::plot()}}.}
+\item{...}{Additional graphical arguments passed to \code{\link[graphics:plot.default]{graphics::plot()}} (1D)
+or \code{\link[graphics:image]{graphics::image()}} (2D).}
 }
 \value{
-Invisibly returns the plotted data.
+Invisibly returns the plotted data (1D: ordered data frame; 2D: matrix).
 }
 \description{
-Plot a one-dimensional sensitivity curve
+For one varying parameter: line plot with optional CI segments when
+\code{y = "estimate"}. For two varying parameters: heatmap. More than two
+parameters is not supported.
 }

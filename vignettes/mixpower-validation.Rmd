@@ -1,0 +1,104 @@
+---
+title: "Validation: is your power number trustworthy?"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Validation: is your power number trustworthy?}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+set.seed(1)
+```
+
+A power estimate is only as trustworthy as the test it is built on. If a
+design/analysis combination does not control its Type I error rate, a high
+"power" number is meaningless --- the test is just rejecting too often, under the
+null as well as the alternative. mixpower makes this check a first-class step.
+
+```{r}
+library(mixpower)
+```
+
+## Calibrate: does the test hold its alpha?
+
+`mp_calibrate()` runs the scenario under the null (the focal effect set to zero)
+and estimates the empirical Type I error rate, with an exact interval and a
+verdict. For a correctly specified model it should sit near `alpha`.
+
+```{r}
+d <- mp_design(clusters = list(subject = 24), trials_per_cell = 6)
+a <- mp_assumptions(
+  fixed_effects = list(`(Intercept)` = 0, condition = 0.4),
+  random_effects = list(subject = list(intercept_sd = 0.5)),
+  residual_sd = 1
+)
+scn <- mp_scenario_lme4(y ~ condition + (1 | subject), design = d, assumptions = a)
+
+mp_calibrate(scn, nsim = 60, seed = 11)
+```
+
+### Catching a misspecified model
+
+The classic trap: the data have a by-subject random slope, but the analysis
+model omits it. This inflates Type I error (Barr et al., 2013). `mp_calibrate()`
+flags it.
+
+```{r}
+a_slope <- mp_assumptions(
+  fixed_effects = list(`(Intercept)` = 0, condition = 0.4),
+  random_effects = list(subject = list(
+    intercept_sd = 0.5, slopes = list(condition = 0.8)
+  )),
+  residual_sd = 1
+)
+# Data have the slope; the fitted model (1 | subject) ignores it.
+scn_mis <- mp_scenario_lme4(y ~ condition + (1 | subject), design = d, assumptions = a_slope)
+
+mp_calibrate(scn_mis, nsim = 60, seed = 7)
+```
+
+The verdict turns to `anti-conservative`: any power computed from this model
+would be inflated. The fix is to fit the maximal model `(1 + condition |
+subject)`, which mixpower simulates and tests directly.
+
+## Recommend: which inference method?
+
+Wald (z/t) tests are anti-conservative when the number of clusters is small,
+because their degrees of freedom are overstated (Luke, 2017).
+`mp_recommend_method()` gives fast, design-based guidance.
+
+```{r}
+scn_few <- mp_scenario_lme4(
+  y ~ condition + (1 | subject),
+  design = mp_design(list(subject = 12), trials_per_cell = 8),
+  assumptions = a
+)
+mp_recommend_method(scn_few)
+```
+
+With few clusters it steers you toward a degrees-of-freedom-corrected test
+(Satterthwaite or Kenward-Roger for LMMs) or a parametric bootstrap. You can
+then *measure* the improvement with `mp_calibrate()`:
+
+```{r, eval = requireNamespace("pbkrtest", quietly = TRUE) && requireNamespace("lmerTest", quietly = TRUE)}
+scn_kr <- mp_scenario_lme4(
+  y ~ condition + (1 | subject),
+  design = mp_design(list(subject = 12), trials_per_cell = 8),
+  assumptions = a, test_method = "kenward-roger"
+)
+mp_calibrate(scn_kr, nsim = 40, seed = 3)$type1
+```
+
+## Reporting
+
+Calibration results drop into the same reporting layer as power results:
+
+```{r}
+mp_report_table(mp_calibrate(scn, nsim = 40, seed = 1))
+```
+
+Run `mp_calibrate()` whenever you change the design size or the analysis model.
+A trustworthy power analysis reports both the power and the calibration that
+backs it.

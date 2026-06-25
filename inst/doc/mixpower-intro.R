@@ -1,15 +1,17 @@
 ## ----setup, include=FALSE-----------------------------------------------------
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+# Vignettes use tiny nsim and small designs so they build quickly on CRAN;
+# use far larger nsim (e.g. 1000+) for real study planning.
 
 ## -----------------------------------------------------------------------------
 library(mixpower)
 
 ## -----------------------------------------------------------------------------
-d <- mp_design(clusters = list(subject = 40), trials_per_cell = 8)
+d <- mp_design(clusters = list(subject = 20), trials_per_cell = 6)
 a <- mp_assumptions(
   fixed_effects = list(`(Intercept)` = 0, condition = 0.4),
   residual_sd = 1,
-  icc = list(subject = 0.1)
+  random_effects = list(subject = list(intercept_sd = 0.1))
 )
 
 scn_wald <- mp_scenario_lme4(
@@ -27,19 +29,19 @@ scn_lrt <- mp_scenario_lme4(
   null_formula = y ~ 1 + (1 | subject)
 )
 
-vary_spec <- list(`clusters.subject` = c(30, 50, 80))
+vary_spec <- list(`clusters.subject` = c(20, 40))
 
 sens_wald <- mp_sensitivity(
   scn_wald,
   vary = vary_spec,
-  nsim = 50,
+  nsim = 12,
   seed = 123
 )
 
 sens_lrt <- mp_sensitivity(
   scn_lrt,
   vary = vary_spec,
-  nsim = 50,
+  nsim = 12,
   seed = 123
 )
 
@@ -77,11 +79,11 @@ legend(
 )
 
 ## ----binomial-scenario--------------------------------------------------------
-d <- mp_design(clusters = list(subject = 40), trials_per_cell = 8)
+d <- mp_design(clusters = list(subject = 20), trials_per_cell = 6)
 a <- mp_assumptions(
   fixed_effects = list(`(Intercept)` = 0, condition = 0.5),
   residual_sd = 1,
-  icc = list(subject = 0.4)
+  random_effects = list(subject = list(intercept_sd = 0.4))
 )
 
 scn_bin <- mp_scenario_lme4_binomial(
@@ -91,14 +93,14 @@ scn_bin <- mp_scenario_lme4_binomial(
   test_method = "wald"
 )
 
-res_bin <- mp_power(scn_bin, nsim = 50, seed = 123)
+res_bin <- mp_power(scn_bin, nsim = 12, seed = 123)
 summary(res_bin)
 
 ## ----binomial-sensitivity-----------------------------------------------------
 sens_bin <- mp_sensitivity(
   scn_bin,
-  vary = list(`fixed_effects.condition` = c(0.2, 0.4, 0.6)),
-  nsim = 50,
+  vary = list(`fixed_effects.condition` = c(0.2, 0.6)),
+  nsim = 12,
   seed = 123
 )
 
@@ -109,11 +111,11 @@ sens_bin$results
 # Increase nsim for final study reporting.
 
 ## ----poisson-scenario---------------------------------------------------------
-d <- mp_design(clusters = list(subject = 40), trials_per_cell = 8)
+d <- mp_design(clusters = list(subject = 20), trials_per_cell = 6)
 a <- mp_assumptions(
   fixed_effects = list(`(Intercept)` = 0, condition = 0.4),
   residual_sd = 1,
-  icc = list(subject = 0.3)
+  random_effects = list(subject = list(intercept_sd = 0.3))
 )
 
 scn_pois <- mp_scenario_lme4_poisson(
@@ -123,7 +125,7 @@ scn_pois <- mp_scenario_lme4_poisson(
   test_method = "wald"
 )
 
-res_pois <- mp_power(scn_pois, nsim = 50, seed = 123)
+res_pois <- mp_power(scn_pois, nsim = 12, seed = 123)
 summary(res_pois)
 
 a_nb <- a
@@ -136,21 +138,21 @@ scn_nb <- mp_scenario_lme4_nb(
   test_method = "wald"
 )
 
-res_nb <- mp_power(scn_nb, nsim = 50, seed = 123)
+res_nb <- mp_power(scn_nb, nsim = 12, seed = 123)
 summary(res_nb)
 
 ## ----count-sensitivity--------------------------------------------------------
 sens_pois <- mp_sensitivity(
   scn_pois,
-  vary = list(`fixed_effects.condition` = c(0.2, 0.4, 0.6)),
-  nsim = 50,
+  vary = list(`fixed_effects.condition` = c(0.2, 0.6)),
+  nsim = 12,
   seed = 123
 )
 
 sens_nb <- mp_sensitivity(
   scn_nb,
-  vary = list(`fixed_effects.condition` = c(0.2, 0.4, 0.6)),
-  nsim = 50,
+  vary = list(`fixed_effects.condition` = c(0.2, 0.6)),
+  nsim = 12,
   seed = 123
 )
 

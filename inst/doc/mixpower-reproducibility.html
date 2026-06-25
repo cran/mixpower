@@ -357,7 +357,7 @@ repo.</p>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="fu">mp_assumptions</span>(</span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="at">fixed_effects =</span> <span class="fu">list</span>(<span class="st">`</span><span class="at">(Intercept)</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="at">condition =</span> <span class="fl">0.3</span>),</span>
 <span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="at">residual_sd =</span> <span class="dv">1</span>,</span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="at">icc =</span> <span class="fu">list</span>(<span class="at">subject =</span> <span class="fl">0.1</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="at">random_effects =</span> <span class="fu">list</span>(<span class="at">subject =</span> <span class="fu">list</span>(<span class="at">intercept_sd =</span> <span class="fl">0.1</span>))</span>
 <span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>)</span>
 <span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>scn <span class="ot">&lt;-</span> <span class="fu">mp_scenario_lme4</span>(</span>
 <span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  y <span class="sc">~</span> condition <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> subject),</span>
@@ -367,16 +367,19 @@ repo.</p>
 <span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>)</span>
 <span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a></span>
 <span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>seed <span class="ot">&lt;-</span> <span class="dv">123</span></span>
-<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">mp_power</span>(scn, <span class="at">nsim =</span> <span class="dv">20</span>, <span class="at">seed =</span> seed)</span>
-<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>manifest <span class="ot">&lt;-</span> <span class="fu">mp_manifest</span>(scn, <span class="at">seed =</span> seed, <span class="at">session =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>manifest</span>
-<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt; &lt;mp_manifest&gt;</span></span>
-<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt;   scenario_digest: 81c8db483e995593 ...</span></span>
-<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt;   seed:123 (fixed)</span></span>
-<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt;   timestamp: 2026-02-10 01:29:06 EST </span></span>
-<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt;   r_version: 4.5.2 </span></span>
-<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt;   mixpower_version: 0.1.0 </span></span>
-<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt;   git_sha: 317d17b</span></span></code></pre></div>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">mp_power</span>(scn, <span class="at">nsim =</span> <span class="dv">12</span>, <span class="at">seed =</span> seed)</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>manifest <span class="ot">&lt;-</span> <span class="fu">mp_manifest</span>(scn, <span class="at">seed =</span> seed, <span class="at">session =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>manifest</span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt; &lt;mp_manifest&gt;</span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt;   scenario_digest: 20466ce7e4ab4946 ...</span></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt;   seed:123 (fixed)</span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt;   timestamp: 2026-06-17 23:15:45 EDT </span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt;   r_version: 4.5.3 </span></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt;   mixpower_version: 1.1.1 </span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt;   git_sha: 0c3ad53</span></span></code></pre></div>
 </div>
 <div id="bundle-results-and-export" class="section level2">
 <h2>Bundle results and export</h2>
@@ -396,16 +399,18 @@ and labels) to disk.</p>
 <span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt;   study_id: power_2024_01 </span></span>
 <span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt;   analyst: analyst </span></span>
 <span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt; &lt;mp_manifest&gt;</span></span>
-<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt;   scenario_digest: 81c8db483e995593 ...</span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt;   scenario_digest: 20466ce7e4ab4946 ...</span></span>
 <span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co">#&gt;   seed:123 (fixed)</span></span>
-<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt;   timestamp: 2026-02-10 01:29:06 EST </span></span>
-<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt;   r_version: 4.5.2 </span></span>
-<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt;   mixpower_version: 0.1.0 </span></span>
-<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt;   git_sha: 317d17b</span></span></code></pre></div>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt;   timestamp: 2026-06-17 23:15:45 EDT </span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt;   r_version: 4.5.3 </span></span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt;   mixpower_version: 1.1.1 </span></span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt;   git_sha: 0c3ad53</span></span></code></pre></div>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>tab <span class="ot">&lt;-</span> <span class="fu">mp_report_table</span>(bundle)</span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>tab</span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt;   power_estimate ci_low ci_high failure_rate singular_rate n_effective nsim</span></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; 1              0      0       0            0             0          20   20</span></span></code></pre></div>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt;   power_estimate     ci_low   ci_high failure_rate singular_rate type_s</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; 1      0.1666667 0.02086253 0.4841377            0          0.25      0</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt;     type_m n_effective nsim</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; 1 1.713297          12   12</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">mp_write_results</span>(bundle, <span class="st">&quot;power_results.csv&quot;</span>, <span class="at">format =</span> <span class="st">&quot;csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">mp_write_results</span>(bundle, <span class="st">&quot;power_results.json&quot;</span>, <span class="at">format =</span> <span class="st">&quot;json&quot;</span>)</span></code></pre></div>
 <p>(Export is skipped in the vignette to avoid writing to the user’s
@@ -428,9 +433,12 @@ notes or in the bundle labels if needed).</li>
 </ol>
 <p>Example: re-run with the stored seed and confirm the power estimate
 matches.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>res2 <span class="ot">&lt;-</span> <span class="fu">mp_power</span>(scn, <span class="at">nsim =</span> <span class="dv">20</span>, <span class="at">seed =</span> manifest<span class="sc">$</span>seed)</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="fu">all.equal</span>(res<span class="sc">$</span>power, res2<span class="sc">$</span>power)</span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>res2 <span class="ot">&lt;-</span> <span class="fu">mp_power</span>(scn, <span class="at">nsim =</span> <span class="dv">12</span>, <span class="at">seed =</span> manifest<span class="sc">$</span>seed)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; boundary (singular) fit: see help(&#39;isSingular&#39;)</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="fu">all.equal</span>(res<span class="sc">$</span>power, res2<span class="sc">$</span>power)</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 </div>
 <div id="one-row-manifest-for-saving" class="section level2">
 <h2>One-row manifest for saving</h2>
@@ -450,11 +458,11 @@ to a log) by building it from the list, omitting the long
 <span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>)</span>
 <span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>df_row</span>
 <span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt;                                                    scenario_digest seed</span></span>
-<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; 1 81c8db483e99559349c12c06e4cb32a095e1364c68af1bb6a8fe13f7863d6cf4  123</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; 1 20466ce7e4ab49465c228d4ba24cd7c28e91a0b10f372a31584d17ac18f5325d  123</span></span>
 <span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co">#&gt;   seed_strategy               timestamp r_version mixpower_version</span></span>
-<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt; 1         fixed 2026-02-10 01:29:06 EST     4.5.2            0.1.0</span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt; 1         fixed 2026-06-17 23:15:46 EDT     4.5.3            1.1.1</span></span>
 <span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">#&gt;                                    git_sha</span></span>
-<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="co">#&gt; 1 317d17b82dcbfd920dc6ce9edf45ab597e03dd4f</span></span></code></pre></div>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="co">#&gt; 1 0c3ad533421707cdc04e5e795dc0eec1c6f2c128</span></span></code></pre></div>
 </div>
 
 

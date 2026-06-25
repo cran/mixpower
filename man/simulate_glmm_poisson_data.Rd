@@ -2,7 +2,7 @@
 % Please edit documentation in R/simulate-glmm-poisson.R
 \name{simulate_glmm_poisson_data}
 \alias{simulate_glmm_poisson_data}
-\title{Simulate count outcome data for a Poisson GLMM with random intercepts}
+\title{Simulate count outcome data for a Poisson GLMM with random effects}
 \usage{
 simulate_glmm_poisson_data(
   scenario,
@@ -27,5 +27,7 @@ simulate_glmm_poisson_data(
 A data.frame with outcome and predictors.
 }
 \description{
-Simulate count outcome data for a Poisson GLMM with random intercepts
+Thin wrapper over the shared simulation engine (\code{.mp_simulate_mixed}) with a
+log link and Poisson response. Random-effect sizes (intercept and optional
+slope on \code{predictor}) come from \code{scenario$assumptions$random_effects}.
 }
